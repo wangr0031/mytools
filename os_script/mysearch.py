@@ -1,32 +1,26 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 __author__ = 'wangrong'
-import zipfile, os, re
+import re
+import os
+from myfunc.logger_def import logger
 
 
-class mycompress(object):
-    def __init__(self, src_path, dest_path):
+class mysearch(object):
+    def __init__(self, src_path, search_key):
+        self.match_keys = list()
         src_path = src_path.replace('\\', '/')
-        dest_path = dest_path.replace('\\', '/')
         if src_path[-1] == '/':
             self.src_path = src_path[:-1]
         else:
             self.src_path = src_path
+        if isinstance(search_key, str):
+            self.match_keys = search_key.upper()
+        elif isinstance(search_key, list):
+            for onekey in search_key:
+                self.match_keys.append(onekey.upper())
 
-        if dest_path[-1] == '/':
-            self.dest_path = dest_path[:-1]
-        else:
-            self.dest_path = dest_path
-        if not os.path.exists(self.dest_path):
-            os.makedirs(self.dest_path)
-
-    def is_correct_zip_file(self, zip_instance):
-        res = zip_instance.testzip()
-        if res is None:
-            return True
-        else:
-            return False
-
+    # 去除空格，空值
     def remove_empty_from_list(self, list_object):
         if list_object is None:
             return list_object
@@ -37,6 +31,7 @@ class mycompress(object):
                 list_object.remove('')
             return list_object
 
+    # 支持按文件后缀匹配和过滤文件
     def list_all_files(self, list_dir, skip_file=None, match_postfix=None):
         all_file_list = []
         skip_file_list = []
@@ -44,6 +39,7 @@ class mycompress(object):
         if os.path.isfile(list_dir):
             all_file_list.append(list_dir)
         elif os.path.isdir(list_dir):
+            ##skip_file & match_postfix格式规整，去除空值，空格等无效数据
             match_postfix = self.remove_empty_from_list(match_postfix)
             skip_file = self.remove_empty_from_list(skip_file)
             for dirpath, dirnames, filenames in os.walk(list_dir):
@@ -79,31 +75,28 @@ class mycompress(object):
 
         return all_file_list
 
-    def compress_files(self, need_zip_object, need_current_dir='Y'):
-        dirname, filename = os.path.split(need_zip_object)
-        fname, fename = os.path.splitext(filename)
-        zipfilename = self.dest_path + '/' + fname + '.zip'
-        print("压缩文件路径：", zipfilename)
-        azip = zipfile.ZipFile(zipfilename, 'w', zipfile.ZIP_DEFLATED)
-        all_list = self.list_all_files(need_zip_object)
-        for onefile in all_list:
-            in_zip_file = onefile.replace(self.src_path, '')
-            azip.write(onefile, in_zip_file)
-        azip.close()
-        # print (all_list)
+    def search(self):
+        all_list = self.list_all_files(self.src_path)
+        for one_file in all_list:
+            fh = open(one_file, mode='r+t', encoding='utf-8')
+            try:
+                text_lines = fh.readlines()
+                row = 1
+                for one_line in text_lines:
+                    for match_key in self.match_keys:
+                        if re.search(match_key, one_line):
+                            logger.info('file: [{}], lines: [{}] match the key: {} '.format(one_file, row, match_key))
+                            logger.debug('match row content: [{}]'.format(one_line))
+                            # print('file: [{}], lines: [{}] match the key: {} '.format(match_key, one_file, row))
 
-    def main_process(self):
-        if os.path.isfile(self.src_path):
-            print("输入路径【{}】为文件，无法处理".format(self.src_path))
-        elif os.path.isdir(self.src_path):
-            all_objects = os.listdir(self.src_path)
-            # print (self.src_path)
-            # print (all_objects)
-            for one in all_objects:
-                one_object = self.src_path + '/' + one
-                self.compress_files(one_object)
+                    row += 1
+            except Exception as err:
+                logger.error('skip file: {}, \n error: {}'.format(one_file, err))
+                # print('[Warning]skip file: {}, error: {}'.format(err, one_file))
+            finally:
+                fh.close()
 
 
 if __name__ == '__main__':
-    a = mycompress(r'C:\Users\cc\Desktop\tmp\1', r'C:\Users\cc\Desktop\tmp\zip')
-    a.main_process()
+    a = mysearch(r'C:\Users\cc\Desktop\tmp\20181130\20181130', ['TAB_POS', 'TAB_BTC', 'IDX_POS', 'IDX_BTC'])
+    a.search()
