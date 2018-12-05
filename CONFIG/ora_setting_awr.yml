@@ -1,0 +1,16 @@
+database_type: ORACLE
+awr_interval_time: 1
+database_awr_sql:
+  awr_snap_id: select snap_id from sys.dba_hist_snapshot t where to_char(t.begin_interval_time,'yyyymmddhh24')='{}'
+  awr_db_id: select dbid from v$database
+  awr_instance_number: select instance_number from v$instance
+  awr_report_html: select output from table(dbms_workload_repository.awr_report_html({},{},{},{},0))
+database_setting:
+  db_61:
+    db_url: 172.16.80.61:21521:cc
+    db_username: system
+    db_password: system
+  db_63:
+    db_url: 172.16.80.63:21522:cc
+    db_username: system
+    db_password: system

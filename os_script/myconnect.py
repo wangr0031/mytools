@@ -151,7 +151,7 @@ class myconnect(object):
             try:
                 file_stat = sftp_instacne.lstat(full_path)
             except Exception as err:
-                sftp_instacne.mkdir(full_path)
+                sftp_instacne.makedirs(full_path)
 
     def get_file(self, src_path, dest_path):
         '''
