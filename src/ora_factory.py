@@ -5,7 +5,7 @@ __author__ = 'wangrong'
 import cx_Oracle
 import yaml
 import os, sys
-from myfunc.logger_def import logger
+from lib.logger_def import logger
 
 
 class ConfigFactory:

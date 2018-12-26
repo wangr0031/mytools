@@ -1,24 +1,19 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 __author__ = 'wangrong'
-import re
-import os
-from myfunc.logger_def import logger
+
+import xlrd
+import xlwt
+import os, re
+from lib.logger_def import logger
 
 
-class mysearch(object):
-    def __init__(self, src_path, search_key):
-        self.match_keys = list()
-        src_path = src_path.replace('\\', '/')
+class myxlsx(object):
+    def __init__(self, src_path):
         if src_path[-1] == '/':
-            self.src_path = src_path[:-1]
-        else:
-            self.src_path = src_path
-        if isinstance(search_key, str):
-            self.match_keys = search_key.upper()
-        elif isinstance(search_key, list):
-            for onekey in search_key:
-                self.match_keys.append(onekey.upper())
+            src_path = src_path[:-1]
+
+        self.src_file_list = self.list_all_files(src_path, match_postfix=['.xlsx'])
 
     # 去除空格，空值
     def remove_empty_from_list(self, list_object):
@@ -31,7 +26,6 @@ class mysearch(object):
                 list_object.remove('')
             return list_object
 
-    # 支持按文件后缀匹配和过滤文件
     def list_all_files(self, list_dir, skip_file=None, match_postfix=None):
         all_file_list = []
         skip_file_list = []
@@ -75,28 +69,18 @@ class mysearch(object):
 
         return all_file_list
 
-    def search(self):
-        all_list = self.list_all_files(self.src_path)
-        for one_file in all_list:
-            fh = open(one_file, mode='r+t', encoding='utf-8')
-            try:
-                text_lines = fh.readlines()
-                row = 1
-                for one_line in text_lines:
-                    for match_key in self.match_keys:
-                        if re.search(match_key, one_line):
-                            logger.info('file: [{}], lines: [{}] match the key: {} '.format(one_file, row, match_key))
-                            logger.debug('match row content: [{}]'.format(one_line))
-                            # print('file: [{}], lines: [{}] match the key: {} '.format(match_key, one_file, row))
+    def open_xlsx(self, xlsx_name):
+        try:
+            xh = xlrd.open_workbook(xlsx_name)
+            return xh
+        except Exception as err:
+            logger.error('open file: [{}] error, error msg: [{}]'.format(xlsx_name, err))
+            return False
 
-                    row += 1
-            except Exception as err:
-                logger.error('skip file: {}, \n error: {}'.format(one_file, err))
-                # print('[Warning]skip file: {}, error: {}'.format(err, one_file))
-            finally:
-                fh.close()
+    # TODO: read xlsx sheet data
+    def read_data(self, xlsx_handle, sheet_name, read_rows=None):
+        pass
 
+    # TODO: read specified sheet
 
-if __name__ == '__main__':
-    a = mysearch(r'C:\Users\cc\Desktop\tmp\20181130\20181130', ['TAB_POS', 'TAB_BTC', 'IDX_POS', 'IDX_BTC'])
-    a.search()
+    # TODO: write data

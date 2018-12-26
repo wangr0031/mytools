@@ -3,7 +3,7 @@
 __author__ = 'wangrong'
 
 import paramiko
-from myfunc.logger_def import logger
+from lib.logger_def import logger
 import os, re
 from stat import *
 from time import sleep

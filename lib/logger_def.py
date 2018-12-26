@@ -8,7 +8,7 @@ import yaml
 '''
 setup logging configuration
 '''
-log_conf = os.path.dirname(os.path.dirname(__file__)) + '/CONFIG/log.cfg'
+log_conf = os.path.dirname(os.path.dirname(__file__)) + '/config/log.yml'
 if not os.path.exists("./mytools/logs"):
     os.mkdir('./mytools/logs')
 

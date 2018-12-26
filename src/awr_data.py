@@ -2,15 +2,15 @@
 # -*- coding:utf-8 -*-
 __author__ = 'wangrong'
 
-from myfunc.logger_def import logger
+from lib.logger_def import logger
 import os, datetime
-from db_script.ora_factory import ConfigFactory, OracleExecFactory
+from src.ora_factory import ConfigFactory, OracleExecFactory
 
 
 class OracleAwr:
 
     def __init__(self):
-        cfg_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'CONFIG', 'ora_setting_awr.yml')
+        cfg_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'ora_setting_awr.yml')
         cfg_data = ConfigFactory(cfg_path).get_settings()
         if cfg_data['database_type'] != 'ORACLE':
             logger.error('database type: [{}] not support'.format(cfg_data['database_type']))
@@ -149,5 +149,8 @@ class OracleAwr:
 
 
 if __name__ == '__main__':
+    '''
+    需要在config/ora_setting_awr.yml文件中提前设置数据库的信息，用户需要有访问dba表的权限，推荐使用system用户
+    '''
     a = OracleAwr()
-    a.main_process('2018-12-5')
+    a.main_process('2018-12-25')
